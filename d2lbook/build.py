@@ -418,7 +418,7 @@ def get_subpages(input_fn):
     return subpages
 
 def _process_and_eval_notebook(input_fn, output_fn, run_cells, config,
-                               timeout=20*60, lang='python'):
+                               timeout=None, lang='python'):
     with open(input_fn, 'r') as f:
         md = f.read()
     nb = notebook.read_markdown(md)
@@ -441,6 +441,8 @@ def _process_and_eval_notebook(input_fn, output_fn, run_cells, config,
         # change to the notebook directory to resolve the relpaths properly
         cwd = os.getcwd()
         os.chdir(os.path.join(cwd, os.path.dirname(output_fn)))
+        if timeout is None:
+            timeout = config.timeout
         notedown.run(nb, timeout)
         os.chdir(cwd)
     # write
