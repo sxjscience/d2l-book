@@ -43,8 +43,7 @@ class Config():
             self.html_dir = self.build['html_dir']
         except KeyError:
             self.html_dir = os.path.join(self.tgt_dir, 'html')
-        # Timeout for running the notebooks
-        self.timeout = self.build['timeout']
+
         # MM20200104 changed to allow separate html_dir to be specified in config.ini, e.g. put 'html_dir = docs' in the [build] section
         self.pdf_dir = os.path.join(self.tgt_dir, 'pdf')
         self.colab_dir = os.path.join(self.tgt_dir, 'colab')
