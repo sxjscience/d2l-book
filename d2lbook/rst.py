@@ -39,11 +39,15 @@ def _process_nb(nb):
         else:
             new_cells.append(cell)
     # hide/show
+    hide_all = False
     for cell in new_cells:
         if cell.cell_type == 'code':
-            if '# hide outputs' in cell.source.lower():
+            src = cell.source.lower()
+            if '#@hide_all' in src:
+                hide_all = True
+            if hide_all or '# hide outputs' in src or ('#@hide' in src and '#@hide_code' not in src) or '#@hide_output' in src:
                 cell.outputs = []
-            if '# hide code' in cell.source.lower():
+            if hide_all or '# hide code' in src or ('#@hide' in src  and '#@hide_output' not in src) or '#@hide_code' in src:
                 cell.source = ''
     return notebook.create_new_notebook(nb, new_cells)
 
@@ -166,9 +170,16 @@ def _process_rst(body):
         pos, new_line = 0, ''
         while True:
             match = common.rst_mark_pattern.search(line, pos)
-            if match is None or match[2] is None:
+            if match is None:
                 new_line += line[pos:]
                 break
+            # e.g., case :math:`x`, :numref:`y`, match[0] = ':math:'
+            elif match[2] is None:
+                end = match.end()
+                new_line += line[pos:end]
+                pos = end
+                continue
+
             start, end = match.start(), match.end()
             # e.g., origin=':label:``fig_jupyter``', key='label', value='fig_jupyter'
             origin, key, value = match[0], match[1], match[2]
@@ -183,7 +194,7 @@ def _process_rst(body):
                 new_line += ':'+key+':`'+value+'`'
             elif key == 'eqref':
                 new_line += ':eq:`'+value+'`'
-            elif key in ['class', 'func']:
+            elif key in ['class', 'func', 'mod']:
                 new_line += ':py:'+key+':`'+value+'`'
             # .. math:: f
             #

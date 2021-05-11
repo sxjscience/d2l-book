@@ -7,10 +7,10 @@ class Config():
         config = configparser.ConfigParser()
         default_config_name = os.path.join(
             os.path.dirname(__file__), 'config_default.ini')
-        config.read(default_config_name)
+        config.read(default_config_name, encoding='UTF-8')
         if os.path.exists(config_fname):
             logging.info('Load configure from %s', config_fname)
-            config.read(config_fname)
+            config.read(config_fname, encoding='UTF-8')
         tabs = config['build']['tabs']
         self.tabs = [tab.strip() for tab in tabs.lower().split(',')] if tabs else []
         self.default_tab = self.tabs[0] if self.tabs else None
@@ -25,6 +25,7 @@ class Config():
         self.project = config['project']
         self.html = config['html']
         self.pdf = config['pdf']
+        self.slides = config['slides']
         self.library = dict(config['library'].items())
         for tab in self.tabs:
             if f'library-{tab}' in config:
@@ -49,6 +50,7 @@ class Config():
         self.colab_dir = os.path.join(self.tgt_dir, 'colab')
         self.sagemaker_dir = os.path.join(self.tgt_dir, 'sagemaker')
         self.linkcheck_dir = os.path.join(self.tgt_dir, 'linkcheck')
+        self.slides_dir = os.path.join(self.tgt_dir, 'slides')
 
         # Some targets names.
         self.pdf_fname = os.path.join(self.pdf_dir, self.project['name']+'.pdf')
@@ -112,6 +114,8 @@ class Config():
         self.pdf_dir = self._set_tab_dir(self.pdf_dir, tab)
         self.colab_dir = self._set_tab_dir(self.colab_dir, tab)
         self.sagemaker_dir = self._set_tab_dir(self.sagemaker_dir, tab)
+        self.slides_dir = self._set_tab_dir(self.slides_dir, tab)
+
 
     def _default_tab_dir(self, dirname):
         tokens = dirname.split('/')
